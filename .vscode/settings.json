@@ -3,5 +3,6 @@
     {
       "mode": "auto"
     }
-  ]
+  ],
+  "dependi.npm.lockFileEnabled": false
 }
