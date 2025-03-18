@@ -1,11 +1,11 @@
+import { ModeToggle } from "../components/mode-togle";
 
-import { Button } from "@repo/ui"
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      hello
-
-      <Button variant="destructive">Hii</Button>
+      
+    <ModeToggle></ModeToggle>
+      
     </div>
   );
 }
