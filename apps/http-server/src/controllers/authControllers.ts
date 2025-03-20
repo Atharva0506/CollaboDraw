@@ -1,98 +1,96 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { prismaClient } from "@repo/db/client";
-import {SignInSchema, SignUpSchema} from "@repo/common/types";
-import bcryptjs from "bcryptjs"
+import { SignInSchema, SignUpSchema } from "@repo/common/types";
+import bcryptjs from "bcryptjs";
 import { createJwtToken } from "../utils/createToken";
 
-export const signUp = async (req: Request, res: Response) => {
-  const {email,username,password} = req.body
-  const parsedData =  SignUpSchema.safeParse(req.body)
+export const signUp: RequestHandler = async (
+  req,
+  res,
+  next
+): Promise<void> => {
+  const { email, username, password } = req.body;
+  const parsedData = SignUpSchema.safeParse(req.body);
 
-  if(!parsedData.success){
+  if (!parsedData.success) {
     console.log(parsedData.error);
-    res.json({
-        message: "Incorrect inputs"
-    })
+    res.status(400).json({ message: "Incorrect inputs" });
     return;
   }
 
   try {
     const isUserExist = await prismaClient.user.findUnique({
-      where:{email:req.body.email}
-    })
+      where: { email },
+    });
 
-    if(isUserExist){
-      res.json({
-        "error":"Email Already in Use "
-      }).status(411)
-      return
+    if (isUserExist) {
+      res.status(409).json({ error: "Email already in use" });
+      return;
     }
 
-    const hashedPassword = await bcryptjs.hash(password,10)
+    const hashedPassword = await bcryptjs.hash(password, 10);
 
-   const newUser =await  prismaClient.user.create({
-    data:{
-    email:email,
-    name:username,
-    password:hashedPassword
-   }
-  })
-  const token = await createJwtToken(newUser.id,email)
+    const newUser = await prismaClient.user.create({
+      data: {
+        email,
+        name: username,
+        password: hashedPassword,
+      },
+    });
 
-  res.json({
-    "message":"User Created Successfully!!",
-    "token":token
-  }).status(200)
+    const token = createJwtToken(newUser.id, email);
 
+    res.status(201).json({
+      id: newUser.id,
+      email: newUser.email,
+      token,
+    });
   } catch (error) {
-    console.error("Error While Signup:", error)
-    res.json({
-      "error":"Internal Server Error"
-    }).status(500)
+    console.error("Error during signup:", error);
+    next(error); 
   }
 };
 
-export const signIn = async (req: Request, res: Response) => {
-  const {email , password} =  req.body
 
-  const parsedData =  SignInSchema.safeParse(req.body)
-  if(!parsedData.success){
+export const signIn: RequestHandler = async (
+  req,
+  res,
+  next
+): Promise<void> => {
+  const { email, password } = req.body;
+  const parsedData = SignInSchema.safeParse(req.body);
+
+  if (!parsedData.success) {
     console.log(parsedData.error);
-    res.json({
-        message: "Incorrect inputs"
-    })
+    res.status(400).json({ message: "Incorrect inputs" });
     return;
   }
+
   try {
-    
-  
-  const user = await prismaClient.user.findFirst({
-    where:{email:req.body.email}
-  })
-  if(!user){
-    res.json({
-      "error":"User Dose Not Exist Sign Up!!! "
-    }).status(403)
-    return
-  }
-  const isMatch = await bcryptjs.compare(password,user.password)
-  if(!isMatch){
-    res.json({
-      "error":"Invaild Password "
-    }).status(400)
-    return
-  }
-  const token = createJwtToken(user.id,email)
+    const user = await prismaClient.user.findUnique({
+      where: { email },
+    });
 
-  res.json({
-    "message":"Sign IN Successfully!!",
-    "token":token
-  }).status(200)
+    if (!user) {
+      res.status(404).json({ error: "User does not exist. Sign up first!" });
+      return;
+    }
 
+    const isMatch = await bcryptjs.compare(password, user.password);
+    if (!isMatch) {
+      res.status(401).json({ error: "Invalid password" });
+      return;
+    }
+
+    const token = createJwtToken(user.id, email);
+
+    res.status(200).json({
+      id: user.id,
+      email: user.email,
+      token,
+    });
   } catch (error) {
-    console.error("Error While Signup:", error)
-    res.json({
-      "error":"Internal Server Error"
-    }).status(500)
+    console.error("Error during signin:", error);
+    next(error); 
   }
 };

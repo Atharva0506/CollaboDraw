@@ -12,12 +12,9 @@ import {
 import { SignInSchema } from "@repo/common/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Input } from "@repo/ui";
-import { Button } from "@repo/ui";
+import { Input, Button, useToast } from "@repo/ui";
 import { z } from "zod";
 import { useState } from "react";
-
-import { useToast } from "@repo/ui";
 import { signIn } from "next-auth/react";
 
 const SignInForm = () => {
@@ -26,7 +23,7 @@ const SignInForm = () => {
 
   const { toast } = useToast();
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
     defaultValues: {
       email: "",
@@ -38,27 +35,44 @@ const SignInForm = () => {
     setLoading(true);
     setError("");
 
-    const signInData = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
+    try {
+      const response = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
 
-    if (signInData?.error) {
-      setError(signInData.error);
-      setLoading(false);
+      if (response?.error) {
+        setError(response.error);
+        toast({
+          variant: "destructive",
+          title: "Sign-in Failed",
+          description: response.error,
+        });
+        return;
+      }
+
+      toast({
+        variant: "default",
+        title: "Signed in",
+        description: "You have successfully signed in",
+      });
+
+      // Redirect after successful login
+      window.location.href = "/dashboard";
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "An unknown error occurred";
+      setError(errorMessage);
       toast({
         variant: "destructive",
-        title: "Error While Signin",
-        description: error,
+        title: "Error",
+        description: errorMessage,
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-
   };
-
-
 
   return (
     <CardWrapper
@@ -84,6 +98,7 @@ const SignInForm = () => {
                       {...field}
                       type="email"
                       placeholder="johndoe@gmail.com"
+                      disabled={loading}
                     />
                   </FormControl>
                   <FormMessage />
@@ -97,7 +112,12 @@ const SignInForm = () => {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="******" />
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="******"
+                      disabled={loading}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -109,7 +129,6 @@ const SignInForm = () => {
           </Button>
         </form>
       </Form>
-     
     </CardWrapper>
   );
 };
