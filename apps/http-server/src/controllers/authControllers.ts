@@ -4,11 +4,7 @@ import { SignInSchema, SignUpSchema } from "@repo/common/types";
 import bcryptjs from "bcryptjs";
 import { createJwtToken } from "../utils/createToken";
 
-export const signUp: RequestHandler = async (
-  req,
-  res,
-  next
-): Promise<void> => {
+export const signUp: RequestHandler = async (req, res, next): Promise<void> => {
   const { email, username, password } = req.body;
   const parsedData = SignUpSchema.safeParse(req.body);
 
@@ -47,22 +43,18 @@ export const signUp: RequestHandler = async (
     });
   } catch (error) {
     console.error("Error during signup:", error);
-    next(error); 
+    next(error);
   }
 };
 
-
-export const signIn: RequestHandler = async (
-  req,
-  res,
-  next
-): Promise<void> => {
+export const signIn: RequestHandler = async (req, res, next): Promise<void> => {
   const { email, password } = req.body;
   const parsedData = SignInSchema.safeParse(req.body);
 
   if (!parsedData.success) {
-    console.log(parsedData.error);
-    res.status(400).json({ message: "Incorrect inputs" });
+    res
+      .status(400)
+      .json({ error: "Incorrect inputs", details: parsedData.error });
     return;
   }
 
@@ -79,7 +71,6 @@ export const signIn: RequestHandler = async (
     const isMatch = await bcryptjs.compare(password, user.password);
     if (!isMatch) {
       res.status(401).json({ error: "Invalid password" });
-      return;
     }
 
     const token = createJwtToken(user.id, email);
@@ -89,8 +80,20 @@ export const signIn: RequestHandler = async (
       email: user.email,
       token,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error during signin:", error);
-    next(error); 
+
+    if (error instanceof Error) {
+      res
+        .status(500)
+        .json({ error: "Internal Server Error", details: error.message });
+    } else {
+      res
+        .status(500)
+        .json({
+          error: "Internal Server Error",
+          details: "An unknown error occurred.",
+        });
+    }
   }
 };

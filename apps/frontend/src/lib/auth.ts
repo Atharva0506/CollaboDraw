@@ -31,25 +31,20 @@ export const authOptions: NextAuthOptions = {
             throw new Error(errorData.message || "Invalid credentials");
           }
 
-          const user = await res.json();
+          const user = (await res.json()) as ExtendedUser; 
 
           if (!user?.token) {
             throw new Error("Token not provided");
           }
 
-          return {
-            id: user.id,
-            email: user.email,
-            token: user.token,
-          } as ExtendedUser;
-        } catch (error: any) {
-          console.error("Authorization error:", error.message);
-          throw new Error(error.message);
+          return user;
+        } catch (error: unknown) {
+          console.error("Authorization error:", error);
+          throw new Error(error instanceof Error ? error.message : "An unknown error occurred.");
         }
-      },
+      },  
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET || "secr3t",
   pages: {
     signIn: "/signin",
   },
@@ -59,9 +54,9 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = (user as ExtendedUser).id;
         token.email = user.email;
-        token.accessToken = user.token;
+        token.accessToken = (user as ExtendedUser).token; 
       }
       return token;
     },
