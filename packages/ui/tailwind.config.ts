@@ -1,13 +1,15 @@
 import animate from "tailwindcss-animate";
 
 /** @type {import('tailwindcss').Config} */
-const config = {
+module.exports = {
   darkMode: ["class"],
+  safelist: ["dark"],
+  prefix: "",
+
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
 
   theme: {
@@ -114,5 +116,3 @@ const config = {
   },
   plugins: [animate],
 };
-
-export default config;

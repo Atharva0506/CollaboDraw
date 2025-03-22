@@ -6,3 +6,8 @@ export * from "./shad/ui/input";
 export * from "./shad/ui/toast";
 export * from "./shad/ui/toaster";
 export * from "./shad/ui/use-toast";
+export * from "./shad/ui/sheet"
+export * from "./shad/ui/tooltip"
+export * from "./shad/ui/sidebar"
+export * from "./shad/ui/separator"
+export * from "./shad/ui/skeleton"
