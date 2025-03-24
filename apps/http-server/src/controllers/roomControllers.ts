@@ -78,3 +78,37 @@ export const getSlug = async (req: Request, res: Response) => {
       .json({ error: "An error occurred while fetching the room." });
   }
 };
+
+
+
+export const getUserRooms = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+     res.status(401).json({ error: "Unauthorized: User ID is missing" });
+     return;
+  }
+
+  try {
+    const rooms = await prismaClient.room.findMany({
+      where: {
+        OR: [
+          { adminId: userId }, 
+          { drawings: { some: { userId } } }, 
+          { chats: { some: { userId } } }, 
+        ],
+      },
+      select: {
+        id: true,
+        slug: true,
+        createdAt: true,
+        isPublic: true,
+      },
+    });
+
+    res.status(200).json(rooms);
+  } catch (error) {
+    console.error("Error fetching user rooms:", error);
+    res.status(500).json({ error: "An error occurred while fetching rooms." });
+  }
+};

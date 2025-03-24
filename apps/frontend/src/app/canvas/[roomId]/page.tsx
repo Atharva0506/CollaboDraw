@@ -1,9 +1,12 @@
-import React from 'react'
+import { RoomCanvas } from "../../../components/RoomCanvas";
 
-const Canvas = () => {
-  return (
-    <div>Canvas</div>
-  )
+
+export default async function CanvasPage({ params }: { params: { roomId: string } }) {
+    const roomId = (await params).roomId;
+
+    return (
+        <div className="bg-background min-h-screen">
+            <RoomCanvas roomId={roomId} />
+        </div>
+    );
 }
-
-export default Canvas
