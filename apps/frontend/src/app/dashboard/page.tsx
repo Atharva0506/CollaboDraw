@@ -1,12 +1,9 @@
-import React from "react";
+import DrawCards from "../../components/dashboard/card";
 
-type Props = {};
-
-export default function DashboardPage({}: Props) {
+export default function Home() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
-      <p>Welcome to the dashboard!</p>
+    <div className="flex flex-col gap-5  w-full">
+   <DrawCards/>
     </div>
   );
 }

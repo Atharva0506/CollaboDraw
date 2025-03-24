@@ -1,5 +1,5 @@
-import { SidebarProvider, SidebarTrigger } from "@repo/ui";
-import Dashboard from "../../components/dashboard/dashboard";
+
+import Navbar from "../../components/dashboard/navbar";
 
 export default function RootLayout({
   children,
@@ -7,12 +7,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SidebarProvider>
-      <div className="min-h-screen w-full flex">
-        <Dashboard />
-        <SidebarTrigger />
-        <div className="flex-1 p-6">{children}</div>
-      </div>
-    </SidebarProvider>
+    <div className="min-h-screen w-full flex flex-col">
+      <Navbar />
+      <div className="p-8 w-full bg-background">{children}</div>
+    </div>
   );
 }
