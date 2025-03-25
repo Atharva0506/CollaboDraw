@@ -74,6 +74,18 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        gradientMove: {
+          "0%, 100%": { opacity: 0.4, transform: "translateY(0px)" },
+          "50%": { opacity: 0.7, transform: "translateY(-10px)" },
+        },
+        fadeInUp: {
+          "0%": { opacity: 0, transform: "translateY(50px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
+        fadeIn: {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
         "accordion-down": {
           from: {
             height: "0",
@@ -108,6 +120,9 @@ module.exports = {
         },
       },
       animation: {
+        "gradient-move": "gradientMove 3s ease-in-out infinite",
+        "fade-in-up": "fadeInUp 0.8s ease-out",
+        "fade-in": "fadeIn 1.2s ease-out",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "collapsible-down": "collapsible-down 0.2s ease-in-out",

@@ -14,4 +14,11 @@ export * from "./shad/ui/skeleton";
 export * from "./shad/ui/avatar";
 export * from "./shad/ui/label";
 export * from "./shad/ui/dialog"
+export * from "./shad/ui/navigation-menu";
+export * from "./shad/ui/badge";
+export * from "./shad/ui/select";
+export * from "./shad/ui/textarea";
+export * from "./shad/ui/accordion";
+export * from "./shad/ui/icon";
+export * from "./shad/ui/carousel";
 export * from "./lib/utils";
